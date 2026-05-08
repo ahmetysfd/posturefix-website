@@ -110,6 +110,10 @@ export default function App() {
           />
         </div>
       </section>
+
+      <footer className="site-footer">
+        <a href="/privacy-policy.html">Privacy Policy</a>
+      </footer>
     </main>
   );
 }

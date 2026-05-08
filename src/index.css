@@ -177,6 +177,18 @@ a:hover {
   background: #05040b;
 }
 
+.site-footer {
+  display: flex;
+  justify-content: center;
+  padding: 22px 0 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.9rem;
+}
+
+.site-footer a {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+}
+
 @media (max-width: 640px) {
   .landing {
     width: min(100% - 16px, 1380px);
