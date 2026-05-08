@@ -79,9 +79,19 @@ export default function App() {
   return (
     <main className="landing">
       <div className="top-strip">
-        <div className="brand">
-          <div className="brand-mark" />
-          <span>Posturefix</span>
+        <div className="top-strip__header">
+          <div className="brand">
+            <div className="brand-mark" />
+            <span>Posturefix</span>
+          </div>
+
+          <nav className="legal-links" aria-label="Legal">
+            <a href="/privacy-policy.html">Privacy Policy</a>
+            <span className="legal-links__sep" aria-hidden="true">
+              ·
+            </span>
+            <a href="/terms-of-use.html">Terms of Use</a>
+          </nav>
         </div>
 
         <div className="store-badges">
@@ -113,6 +123,10 @@ export default function App() {
 
       <footer className="site-footer">
         <a href="/privacy-policy.html">Privacy Policy</a>
+        <span className="legal-links__sep" aria-hidden="true">
+          ·
+        </span>
+        <a href="/terms-of-use.html">Terms of Use</a>
       </footer>
     </main>
   );
