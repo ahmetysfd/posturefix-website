@@ -91,6 +91,10 @@ export default function App() {
               ·
             </span>
             <a href="/terms-of-use.html">Terms of Use</a>
+            <span className="legal-links__sep" aria-hidden="true">
+              ·
+            </span>
+            <a href="/delete-account.html">Delete Account</a>
           </nav>
         </div>
 
@@ -127,6 +131,10 @@ export default function App() {
           ·
         </span>
         <a href="/terms-of-use.html">Terms of Use</a>
+        <span className="legal-links__sep" aria-hidden="true">
+          ·
+        </span>
+        <a href="/delete-account.html">Delete Account</a>
       </footer>
     </main>
   );
