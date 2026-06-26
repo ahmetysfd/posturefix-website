@@ -1,3 +1,14 @@
+const APP_STORE_URL =
+  "https://apps.apple.com/ru/app/posturefix-analyze-with-ai/id6765663533?l=en-GB";
+
+const SCREENS = [
+  { src: "/screens/01.png", alt: "AI posture analysis flagging posture risks" },
+  { src: "/screens/02.png", alt: "Personalized daily program built for you" },
+  { src: "/screens/03.png", alt: "Guided exercises, step by step" },
+  { src: "/screens/04.png", alt: "From analysis to a ready program" },
+  { src: "/screens/05.png", alt: "Smart reminders and weekly schedule" },
+];
+
 function AppleIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -12,134 +23,226 @@ function AppleIcon() {
 function PlayIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M4.94 3.74c-.49.51-.78 1.26-.78 2.19v12.13c0 .94.29 1.69.78 2.2l.12.1 6.79-6.79v-.14L5.06 3.64l-.12.1Z"
-        fill="#00d08a"
-      />
-      <path
-        d="m14.1 11.16-2.15 2.15v.14l2.15 2.15.05-.03 2.56-1.45c.73-.41.73-1.08 0-1.5l-2.56-1.43-.05-.03Z"
-        fill="#ffd166"
-      />
-      <path
-        d="m14.15 15.57-2.2-2.2-6.91 6.9c.78.8 2 .9 3.36.14l5.75-3.25Z"
-        fill="#57a4ff"
-      />
-      <path
-        d="M14.15 11.16 8.4 7.92c-1.36-.77-2.58-.66-3.36.14l6.91 6.91 2.2-2.2Z"
-        fill="#ff5d73"
-      />
+      <path d="M4.94 3.74c-.49.51-.78 1.26-.78 2.19v12.13c0 .94.29 1.69.78 2.2l.12.1 6.79-6.79v-.14L5.06 3.64l-.12.1Z" fill="#34d39a" />
+      <path d="m14.1 11.16-2.15 2.15v.14l2.15 2.15.05-.03 2.56-1.45c.73-.41.73-1.08 0-1.5l-2.56-1.43-.05-.03Z" fill="#ffd35c" />
+      <path d="m14.15 15.57-2.2-2.2-6.91 6.9c.78.8 2 .9 3.36.14l5.75-3.25Z" fill="#5aa9ff" />
+      <path d="M14.15 11.16 8.4 7.92c-1.36-.77-2.58-.66-3.36.14l6.91 6.91 2.2-2.2Z" fill="#ff6376" />
     </svg>
   );
 }
 
-function GitHubIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.88-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.57 2.34 1.12 2.91.86.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.15-4.56-5.11 0-1.13.39-2.05 1.03-2.77-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.06A9.3 9.3 0 0 1 12 6.84c.85 0 1.71.12 2.51.35 1.9-1.34 2.74-1.06 2.74-1.06.55 1.42.2 2.47.1 2.73.64.72 1.03 1.64 1.03 2.77 0 3.97-2.34 4.84-4.57 5.1.36.32.68.95.68 1.92 0 1.39-.01 2.5-.01 2.84 0 .27.18.59.69.49A10.26 10.26 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function StoreBadge({ icon, store, label, href }) {
-  const content = (
+function StoreButton({ icon, label, store, href }) {
+  const inner = (
     <>
-      <div className="store-badge__icon">{icon}</div>
-      <div>
-        <span>{label}</span>
+      <span className="store-btn__icon">{icon}</span>
+      <span className="store-btn__text">
+        <small>{label}</small>
         <strong>{store}</strong>
-      </div>
+      </span>
     </>
   );
 
   if (href) {
     return (
-      <a
-        className="store-badge"
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-        aria-label={`${store} link`}
-      >
-        {content}
+      <a className="store-btn" href={href} target="_blank" rel="noreferrer">
+        {inner}
       </a>
     );
   }
-
   return (
-    <div className="store-badge">
-      {content}
+    <div className="store-btn store-btn--soon" aria-disabled="true">
+      {inner}
+    </div>
+  );
+}
+
+function Feature({ icon, title, children }) {
+  return (
+    <div className="feature">
+      <div className="feature__icon">{icon}</div>
+      <h3>{title}</h3>
+      <p>{children}</p>
     </div>
   );
 }
 
 export default function App() {
   return (
-    <main className="landing">
-      <div className="top-strip">
-        <div className="top-strip__header">
-          <div className="brand">
-            <div className="brand-mark" />
-            <span>Posturefix</span>
+    <div className="page">
+      <div className="bg-glow" aria-hidden="true" />
+
+      <header className="nav">
+        <a className="brand" href="#top" aria-label="Posturefix home">
+          <img className="brand__mark" src="/icon.png" alt="" />
+          <span className="brand__name">Posturefix</span>
+        </a>
+        <nav className="nav__links" aria-label="Sections">
+          <a href="#features">Features</a>
+          <a href="#screens">Screens</a>
+          <a href="/support.html">Support</a>
+        </nav>
+        <a className="nav__cta" href={APP_STORE_URL} target="_blank" rel="noreferrer">
+          Get the app
+        </a>
+      </header>
+
+      <main id="top">
+        <section className="hero">
+          <div className="hero__copy">
+            <span className="eyebrow">
+              <span className="eyebrow__dot" /> AI Posture Analysis
+            </span>
+            <h1>
+              Better posture,
+              <br />
+              <span className="grad">backed by AI.</span>
+            </h1>
+            <p className="hero__sub">
+              Scan your posture in seconds. Posturefix detects risks like forward
+              head, rounded shoulders and pelvic tilt — then builds a personalized
+              daily program to fix them.
+            </p>
+
+            <div className="store-row">
+              <StoreButton
+                icon={<AppleIcon />}
+                label="Download on the"
+                store="App Store"
+                href={APP_STORE_URL}
+              />
+              <StoreButton
+                icon={<PlayIcon />}
+                label="Coming soon to"
+                store="Google Play"
+              />
+            </div>
+
+            <div className="trust">
+              <span>Free to download</span>
+              <i aria-hidden="true">•</i>
+              <span>Private &amp; on-device scanning</span>
+            </div>
           </div>
 
-          <nav className="legal-links" aria-label="Legal">
-            <a href="/privacy-policy.html">Privacy Policy</a>
-            <span className="legal-links__sep" aria-hidden="true">
-              ·
-            </span>
-            <a href="/terms-of-use.html">Terms of Use</a>
-            <span className="legal-links__sep" aria-hidden="true">
-              ·
-            </span>
-            <a href="/delete-account.html">Delete Account</a>
-            <span className="legal-links__sep" aria-hidden="true"> · </span>
-            <a href="/support.html">Support</a>
-          </nav>
-        </div>
-
-        <div className="store-badges">
-          <StoreBadge icon={<AppleIcon />} label="Coming Soon" store="iOS" />
-          <StoreBadge icon={<PlayIcon />} label="Coming Soon" store="Google Play" />
-          <StoreBadge
-            icon={<GitHubIcon />}
-            label="View on"
-            store="GitHub"
-            href="https://github.com/ahmetysfd/posture-ios-app"
-          />
-        </div>
-      </div>
-
-      <section className="showcase" aria-label="Posturefix app preview">
-        <div className="showcase-window">
-          <div className="showcase-window__bar">
-            <span />
-            <span />
-            <span />
+          <div className="hero__art">
+            <div className="hero__phone hero__phone--back" aria-hidden="true">
+              <img src="/screens/02.png" alt="" loading="eager" />
+            </div>
+            <div className="hero__phone hero__phone--front">
+              <img src="/screens/01.png" alt={SCREENS[0].alt} loading="eager" />
+            </div>
           </div>
-          <iframe
-            className="showcase-frame"
-            src="https://user-notch-43691001.figma.site/"
-            title="Posturefix live preview"
-          />
-        </div>
-      </section>
+        </section>
 
-      <footer className="site-footer">
-        <a href="/privacy-policy.html">Privacy Policy</a>
-        <span className="legal-links__sep" aria-hidden="true">
-          ·
-        </span>
-        <a href="/terms-of-use.html">Terms of Use</a>
-        <span className="legal-links__sep" aria-hidden="true">
-          ·
-        </span>
-        <a href="/delete-account.html">Delete Account</a>
-        <span className="legal-links__sep" aria-hidden="true"> · </span>
-        <a href="/support.html">Support</a>
+        <section className="features" id="features">
+          <Feature
+            icon={<ScanIcon />}
+            title="AI posture scan"
+          >
+            Snap a photo and our AI maps your alignment, flagging issues with clear
+            risk levels you can actually understand.
+          </Feature>
+          <Feature icon={<PlanIcon />} title="A program built for you">
+            Your analysis turns into a personalized daily routine that targets your
+            specific risk areas — nothing generic.
+          </Feature>
+          <Feature icon={<GuideIcon />} title="Guided, step by step">
+            Follow along with timed, illustrated exercises designed to undo the
+            damage of sitting all day.
+          </Feature>
+          <Feature icon={<BellIcon />} title="Smart reminders">
+            Build the habit with a weekly schedule and gentle nudges that keep you
+            consistent.
+          </Feature>
+        </section>
+
+        <section className="showcase" id="screens">
+          <div className="showcase__head">
+            <h2>
+              See it in <span className="grad">action</span>
+            </h2>
+            <p>Everything you need to stand taller, in one focused app.</p>
+          </div>
+          <div className="showcase__track">
+            {SCREENS.map((s) => (
+              <figure className="shot" key={s.src}>
+                <img src={s.src} alt={s.alt} loading="lazy" />
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        <section className="cta">
+          <div className="cta__card">
+            <img className="cta__icon" src="/icon.png" alt="" />
+            <h2>Start fixing your posture today.</h2>
+            <p>Download Posturefix and get your first AI scan in under a minute.</p>
+            <div className="store-row store-row--center">
+              <StoreButton
+                icon={<AppleIcon />}
+                label="Download on the"
+                store="App Store"
+                href={APP_STORE_URL}
+              />
+              <StoreButton
+                icon={<PlayIcon />}
+                label="Coming soon to"
+                store="Google Play"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <div className="footer__brand">
+          <img src="/icon.png" alt="" />
+          <span>Posturefix</span>
+        </div>
+        <nav className="footer__links" aria-label="Legal">
+          <a href="/privacy-policy.html">Privacy Policy</a>
+          <a href="/terms-of-use.html">Terms of Use</a>
+          <a href="/delete-account.html">Delete Account</a>
+          <a href="/support.html">Support</a>
+        </nav>
+        <p className="footer__copy">
+          © {new Date().getFullYear()} Posturefix. All rights reserved.
+        </p>
       </footer>
-    </main>
+    </div>
+  );
+}
+
+/* --- inline feature icons --- */
+function ScanIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M4 12h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+function PlanIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M9.5 9.5h5M9.5 13h5M9.5 16.5h3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+function GuideIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.2" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M10.5 9.3v5.4l4-2.7-4-2.7Z" fill="currentColor" />
+    </svg>
+  );
+}
+function BellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2H4.5L6 16.5Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <path d="M10 20a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
   );
 }
