@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Posture Fix — Creator Dashboard</title>
+<style>
+  /*
+    Self-contained on purpose. This page gets opened on a creator's phone,
+    often on mobile data, and it should render before anything else loads —
+    so no CDN, no webfont, no framework.
+  */
+  :root {
+    --bg:        #0e0f12;
+    --surface:   #16181d;
+    --elevated:  #1d2027;
+    --line:      #262a33;
+    --text:      #e8e9ed;
+    --muted:     #868c99;
+    --accent:    #f5793b;
+    --accent-dim:#8a3f1c;
+    --good:      #4ec98a;
+
+    --pad: 20px;
+    --r: 14px;
+
+    /* Layered and tinted rather than one flat drop. */
+    --lift:
+      0 1px 2px rgba(0,0,0,.5),
+      0 6px 16px -6px rgba(0,0,0,.6),
+      0 1px 0 rgba(255,255,255,.03) inset;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    /* Two soft radial washes so the background isn't a flat rectangle. */
+    background-image:
+      radial-gradient(900px 500px at 15% -10%, rgba(245,121,59,.09), transparent 60%),
+      radial-gradient(700px 500px at 100% 0%, rgba(78,201,138,.05), transparent 55%);
+    background-attachment: fixed;
+    padding: max(20px, env(safe-area-inset-top)) 16px 64px;
+  }
+
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  h1, h2, .num {
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  header { padding: 28px 4px 24px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: 10px;
+  }
+  h1 { font-size: clamp(30px, 8vw, 44px); }
+  .sub { color: var(--muted); font-size: 15px; margin-top: 6px; }
+
+  .code-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 16px; padding: 8px 14px;
+    background: var(--elevated); border: 1px solid var(--line);
+    border-radius: 999px; font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: .06em;
+  }
+  .code-chip b { color: var(--accent); font-weight: 600; }
+
+  .grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+  @media (min-width: 560px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .card {
+    background: linear-gradient(180deg, var(--surface), #131519);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: var(--pad);
+    box-shadow: var(--lift);
+  }
+  .card.span { grid-column: 1 / -1; }
+
+  .label {
+    font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .num {
+    font-size: clamp(30px, 9vw, 40px);
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .num.accent { color: var(--accent); }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  h2 { font-size: 21px; margin: 34px 4px 14px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  .yours { color: var(--accent); font-weight: 600; }
+
+  .chart { display: flex; align-items: flex-end; gap: 3px; height: 130px; margin-top: 6px; }
+  .bar {
+    flex: 1; min-width: 3px; border-radius: 3px 3px 0 0;
+    background: linear-gradient(180deg, var(--accent), var(--accent-dim));
+    /* transform only — never height/width */
+    transform-origin: bottom;
+    animation: rise .5s cubic-bezier(.2,.8,.2,1) both;
+    position: relative;
+  }
+  .bar.empty { background: #22262e; }
+  @keyframes rise { from { transform: scaleY(0); opacity: 0 } to { transform: scaleY(1); opacity: 1 } }
+  .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  .note {
+    margin-top: 14px; padding: 14px 16px;
+    background: rgba(245,121,59,.06);
+    border: 1px solid rgba(245,121,59,.18);
+    border-radius: 12px; font-size: 13.5px; color: #c8b3a5;
+  }
+
+  .empty-state { text-align: center; padding: 40px 20px; }
+  .empty-state .num { color: var(--muted); }
+
+  footer {
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 12px;
+    align-items: center; justify-content: space-between;
+    font-size: 13px; color: var(--muted);
+  }
+
+  button {
+    font: inherit; font-size: 14px; font-weight: 600;
+    color: var(--text); background: var(--elevated);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 18px; cursor: pointer;
+    transition: transform .18s cubic-bezier(.2,.8,.2,1), opacity .18s ease;
+  }
+  button:hover { opacity: .85; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:active { transform: scale(.97); }
+  button[disabled] { opacity: .5; cursor: default; }
+
+  .msg { padding: 48px 20px; text-align: center; color: var(--muted); }
+  .msg h1 { font-size: 26px; color: var(--text); margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+  <div class="msg"><h1>Loading…</h1><p>Fetching your latest numbers.</p></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Config ────────────────────────────────────────────────────────────────
+  // The anon key is safe here: it is already inside the shipped app bundle, and
+  // it cannot read code_redemptions directly — RLS blocks that. Everything on
+  // this page comes from creator_dashboard(), which only ever returns
+  // aggregates for the one code the token resolves to.
+  var SUPABASE_URL = 'https://slyfzgzyfkifmdxgzmqi.supabase.co';
+  // ⚠️ The PUBLISHABLE key (sb_publishable_...), not a creator's dashboard
+  // token and never the secret key — sb_secret_... bypasses RLS entirely and
+  // would hand the whole database to anyone who opens this page.
+  var ANON_KEY = 'sb_publishable_v59DrK2UGnc77QxXDtnazQ_ImeqmiUs';
+
+  var root = document.getElementById('root');
+
+  // Token lives in the fragment, not the query string: fragments are not sent
+  // to the server, so it stays out of access logs and Referer headers.
+  var token = (location.hash || '').replace(/^#t=/, '').trim();
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+  function n(v) { return Number(v || 0).toLocaleString('en-US'); }
+  function money(v) { return Number(v || 0).toFixed(2); }
+  function fail(title, body) {
+    root.innerHTML = '<div class="msg"><h1>' + esc(title) + '</h1><p>' + esc(body) + '</p></div>';
+  }
+
+  function planLabel(k) {
+    return { monthly: 'Monthly', yearly: 'Yearly', lifetime: 'Lifetime', unknown: 'Unrecorded' }[k] || k;
+  }
+
+  function chart(daily) {
+    // Fill the gaps so a quiet day is a visible gap rather than a missing bar.
+    var days = [], byDay = {};
+    (daily || []).forEach(function (r) { byDay[r.d] = r; });
+    for (var i = 29; i >= 0; i--) {
+      var d = new Date(); d.setDate(d.getDate() - i);
+      var key = d.toISOString().slice(0, 10);
+      days.push(byDay[key] || { d: key, applied: 0, subscribed: 0 });
+    }
+    var max = Math.max.apply(null, days.map(function (d) { return d.applied; }).concat([1]));
+    var bars = days.map(function (d, i) {
+      var h = d.applied ? Math.max(6, Math.round((d.applied / max) * 100)) : 3;
+      return '<div class="bar' + (d.applied ? '' : ' empty') + '"' +
+             ' style="height:' + h + '%;animation-delay:' + (i * 12) + 'ms"' +
+             ' title="' + esc(d.d) + ' — ' + d.applied + ' applied, ' + d.subscribed + ' subscribed"></div>';
+    }).join('');
+    return '<div class="chart">' + bars + '</div>' +
+           '<div class="axis"><span>30 days ago</span><span>Today</span></div>';
+  }
+
+  function render(s) {
+    var hasData = s.applied > 0 || s.subscribed > 0;
+
+    var earningsRows = (s.earnings || []).map(function (e) {
+      return '<tr><td>' + esc(e.currency) + '</td>' +
+             '<td>' + n(e.count) + '</td>' +
+             '<td class="yours">' + money(e.yours) + '</td></tr>';
+    }).join('');
+
+    var planRows = Object.keys(s.byPlan || {}).map(function (k) {
+      return '<tr><td>' + esc(planLabel(k)) + '</td><td></td><td>' + n(s.byPlan[k]) + '</td></tr>';
+    }).join('');
+
+    root.innerHTML =
+      '<header>' +
+        '<div class="eyebrow">Posture Fix · Creator Dashboard</div>' +
+        '<h1>' + esc(s.creator || 'Your numbers') + '</h1>' +
+        '<div class="sub">' + esc(s.handle || '') + '</div>' +
+        '<div class="code-chip">Your code <b>' + esc(s.code) + '</b></div>' +
+      '</header>' +
+
+      (hasData ? (
+        '<div class="grid">' +
+          '<div class="card"><div class="label">Code used</div>' +
+            '<div class="num">' + n(s.applied) + '</div>' +
+            '<div class="hint">people entered it</div></div>' +
+          '<div class="card"><div class="label">Subscribed</div>' +
+            '<div class="num">' + n(s.subscribed) + '</div>' +
+            '<div class="hint">went premium</div></div>' +
+          '<div class="card"><div class="label">Your share</div>' +
+            '<div class="num accent">' + n(s.sharePercent) + '%</div>' +
+            '<div class="hint">of net revenue</div></div>' +
+        '</div>' +
+
+        '<h2>Your earnings</h2>' +
+        (earningsRows
+          ? '<div class="card span"><table><thead><tr><th>Currency</th><th>Subs</th><th>You earn</th></tr></thead>' +
+            '<tbody>' + earningsRows + '</tbody></table></div>'
+          : '<div class="card span"><div class="hint">No subscriptions through your code yet.</div></div>') +
+        '<div class="note">Grouped by the currency each person was charged in — the App Store bills locally, so ' +
+          'adding them together would be misleading. Figures are after Apple\'s commission and VAT, estimated at ' +
+          Math.round((s.netRatio || 0.691) * 100) + '% of the list price. Final payouts are reconciled against ' +
+          'Apple\'s actual statements.</div>' +
+
+        (planRows
+          ? '<h2>By plan</h2><div class="card span"><table><tbody>' + planRows + '</tbody></table></div>'
+          : '') +
+
+        '<h2>Last 30 days</h2>' +
+        '<div class="card span">' + chart(s.daily) + '</div>'
+      ) : (
+        '<div class="card span empty-state">' +
+          '<div class="num">0</div>' +
+          '<div class="hint" style="max-width:38ch;margin:10px auto 0">' +
+            'Nothing has come through your code yet. This page updates the moment someone uses it — ' +
+            'bookmark it and check back after your next post.' +
+          '</div>' +
+        '</div>'
+      )) +
+
+      '<footer>' +
+        '<span>Updated ' + esc(new Date(s.generatedAt).toLocaleString()) + '</span>' +
+        '<button id="reload" type="button">Refresh</button>' +
+      '</footer>';
+
+    document.getElementById('reload').addEventListener('click', function (e) {
+      e.currentTarget.disabled = true;
+      e.currentTarget.textContent = 'Refreshing…';
+      load();
+    });
+  }
+
+  function load() {
+    if (!token || token.length < 32) {
+      return fail('Link incomplete', 'Open the full link you were sent — the part after the # is what identifies your dashboard.');
+    }
+    fetch(SUPABASE_URL + '/rest/v1/rpc/creator_dashboard', {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ p_token: token })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data || data.ok !== true) {
+        return fail('Link not recognised', 'This dashboard link is not valid. Ask us for a fresh one.');
+      }
+      render(data);
+    })
+    .catch(function () {
+      fail('Could not load', 'Check your connection and try again.');
+    });
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
