@@ -80,7 +80,6 @@
   .code-chip b { color: var(--accent); font-weight: 600; }
 
   .grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
-  @media (min-width: 560px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
   .card {
     background: linear-gradient(180deg, var(--surface), #131519);
@@ -111,6 +110,7 @@
   td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
   tr:last-child td { border-bottom: none; }
   .yours { color: var(--accent); font-weight: 600; }
+  .zero  { color: var(--muted); }
 
   .chart { display: flex; align-items: flex-end; gap: 3px; height: 130px; margin-top: 6px; }
   .bar {
@@ -124,13 +124,6 @@
   .bar.empty { background: #22262e; }
   @keyframes rise { from { transform: scaleY(0); opacity: 0 } to { transform: scaleY(1); opacity: 1 } }
   .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 8px; }
-
-  .note {
-    margin-top: 14px; padding: 14px 16px;
-    background: rgba(245,121,59,.06);
-    border: 1px solid rgba(245,121,59,.18);
-    border-radius: 12px; font-size: 13.5px; color: #c8b3a5;
-  }
 
   .empty-state { text-align: center; padding: 40px 20px; }
   .empty-state .num { color: var(--muted); }
@@ -190,13 +183,45 @@
     });
   }
   function n(v) { return Number(v || 0).toLocaleString('en-US'); }
-  function money(v) { return Number(v || 0).toFixed(2); }
   function fail(title, body) {
     root.innerHTML = '<div class="msg"><h1>' + esc(title) + '</h1><p>' + esc(body) + '</p></div>';
   }
 
   function planLabel(k) {
     return { monthly: 'Monthly', yearly: 'Yearly', lifetime: 'Lifetime', unknown: 'Unrecorded' }[k] || k;
+  }
+
+  // Every plan the paywall sells gets a row, including the ones nobody has
+  // bought. A missing row reads as a missing feature; an explicit 0 reads as
+  // what it is.
+  var PLAN_ORDER = ['monthly', 'yearly', 'lifetime'];
+
+  function planTable(s) {
+    var byPlan = s.byPlan || {};
+    var rows = PLAN_ORDER.map(function (k) { return [k, Number(byPlan[k] || 0)]; });
+
+    // Anything the app starts recording later — a new tier, a plan name that
+    // doesn't match this list — lands after the three known ones instead of
+    // vanishing from the table.
+    Object.keys(byPlan).forEach(function (k) {
+      if (PLAN_ORDER.indexOf(k) === -1) rows.push([k, Number(byPlan[k] || 0)]);
+    });
+
+    // Subscriptions logged before `plan` was recorded aren't in byPlan at all.
+    // Without this line the rows would quietly add up to less than the
+    // Subscribed card directly above them, which looks like a bug in the
+    // numbers rather than a gap in the older data.
+    var counted = rows.reduce(function (sum, r) { return sum + r[1]; }, 0);
+    var missing = Number(s.subscribed || 0) - counted;
+    if (missing > 0) rows.push(['unknown', missing]);
+
+    return '<div class="card span"><table>' +
+      '<thead><tr><th>Plan</th><th>Subscribers</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr><td>' + esc(planLabel(r[0])) + '</td>' +
+               '<td class="' + (r[1] ? 'yours' : 'zero') + '">' + n(r[1]) + '</td></tr>';
+      }).join('') +
+      '</tbody></table></div>';
   }
 
   function chart(daily) {
@@ -222,16 +247,6 @@
   function render(s) {
     var hasData = s.applied > 0 || s.subscribed > 0;
 
-    var earningsRows = (s.earnings || []).map(function (e) {
-      return '<tr><td>' + esc(e.currency) + '</td>' +
-             '<td>' + n(e.count) + '</td>' +
-             '<td class="yours">' + money(e.yours) + '</td></tr>';
-    }).join('');
-
-    var planRows = Object.keys(s.byPlan || {}).map(function (k) {
-      return '<tr><td>' + esc(planLabel(k)) + '</td><td></td><td>' + n(s.byPlan[k]) + '</td></tr>';
-    }).join('');
-
     root.innerHTML =
       '<header>' +
         '<div class="eyebrow">Posture Fix · Creator Dashboard</div>' +
@@ -248,24 +263,10 @@
           '<div class="card"><div class="label">Subscribed</div>' +
             '<div class="num">' + n(s.subscribed) + '</div>' +
             '<div class="hint">went premium</div></div>' +
-          '<div class="card"><div class="label">Your share</div>' +
-            '<div class="num accent">' + n(s.sharePercent) + '%</div>' +
-            '<div class="hint">of net revenue</div></div>' +
         '</div>' +
 
-        '<h2>Your earnings</h2>' +
-        (earningsRows
-          ? '<div class="card span"><table><thead><tr><th>Currency</th><th>Subs</th><th>You earn</th></tr></thead>' +
-            '<tbody>' + earningsRows + '</tbody></table></div>'
-          : '<div class="card span"><div class="hint">No subscriptions through your code yet.</div></div>') +
-        '<div class="note">Grouped by the currency each person was charged in — the App Store bills locally, so ' +
-          'adding them together would be misleading. Figures are after Apple\'s commission and VAT, estimated at ' +
-          Math.round((s.netRatio || 0.691) * 100) + '% of the list price. Final payouts are reconciled against ' +
-          'Apple\'s actual statements.</div>' +
-
-        (planRows
-          ? '<h2>By plan</h2><div class="card span"><table><tbody>' + planRows + '</tbody></table></div>'
-          : '') +
+        '<h2>Subscriptions by plan</h2>' +
+        planTable(s) +
 
         '<h2>Last 30 days</h2>' +
         '<div class="card span">' + chart(s.daily) + '</div>'
